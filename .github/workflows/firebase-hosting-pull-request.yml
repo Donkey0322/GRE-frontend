@@ -28,3 +28,4 @@ jobs:
           repoToken: "${{ secrets.GITHUB_TOKEN }}"
           firebaseServiceAccount: "${{ secrets.FIREBASE_SERVICE_ACCOUNT_GRE_VOCAB_A3D74 }}"
           projectId: gre-vocab-a3d74
+          entryPoint: "./firebase"

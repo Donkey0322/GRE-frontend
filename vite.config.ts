@@ -14,6 +14,9 @@ export default defineConfig(({ mode }) => {
         "@mui/styled-engine": "@mui/styled-engine-sc",
       },
     },
+    build: {
+      outDir: "./firebase/dist",
+    },
     server: {
       port: Number(env.VITE_APP_PORT),
     },
