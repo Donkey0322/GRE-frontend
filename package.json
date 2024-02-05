@@ -1,5 +1,5 @@
 {
-  "name": "aaa",
+  "name": "gre-frontend",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -7,7 +7,12 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "commit": "node scripts/commit",
+    "schema": "node scripts/fetch",
+    "firebase": "yarn install --frozen-lockfile && node scripts/firebase",
+    "initial": "yarn && node scripts/initial",
+    "husky": "husky install"
   },
   "dependencies": {
     "@mui/icons-material": "^5.15.6",
