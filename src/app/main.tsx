@@ -165,6 +165,9 @@ export default function Main() {
         <ToggleButton value="cloze2" key="2">
           Cloze 2
         </ToggleButton>
+        <ToggleButton value="cloze3" key="3">
+          Cloze 3
+        </ToggleButton>
       </ToggleButtonGroup>
       {!statuses.length || isFetching ? (
         <p>Loading...</p>
