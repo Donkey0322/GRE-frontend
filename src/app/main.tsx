@@ -45,12 +45,17 @@ const QuestionsContainer = styled.div`
 
 const Question = styled.div`
   display: flex;
-  align-items: end;
+  align-items: start;
   column-gap: 0.5em;
 `;
 
+const Number = styled.div`
+  line-height: 2em;
+  flex-shrink: 0;
+`;
+
 const Context = styled.div`
-  line-height: normal;
+  line-height: 2em;
 `;
 
 export default function Main() {
@@ -215,7 +220,8 @@ export default function Main() {
                   debounceHandleOnChange(event.target.value, index);
                 }}
               />
-              <Context>{index + 1 + ".  " + question.context}</Context>
+              <Number>{index + 1 + ". "}</Number>
+              <Context>{question.context}</Context>
             </Question>
           ))}
           <Backdrop

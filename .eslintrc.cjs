@@ -17,7 +17,7 @@ module.exports = {
     project: ["./tsconfig.json", "./tsconfig.node.json"],
     tsconfigRootDir: __dirname,
   },
-  plugins: ["react-refresh", "simple-import-sort"],
+  plugins: ["react-refresh", "simple-import-sort", "no-relative-import-paths"],
   rules: {
     // "react-refresh/only-export-components": [
     //   "warn",
@@ -61,5 +61,9 @@ module.exports = {
     "react-hooks/rules-of-hooks": "error",
     "react-hooks/exhaustive-deps": "warn",
     "@typescript-eslint/consistent-type-imports": "error",
+    "no-relative-import-paths/no-relative-import-paths": [
+      "warn",
+      { allowSameFolder: false, prefix: "@", rootDir: "src" },
+    ],
   },
 };
