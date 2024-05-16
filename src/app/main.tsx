@@ -18,7 +18,7 @@ import TextField from "@mui/material/TextField";
 import Zoom from "@mui/material/Zoom";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { debounce } from "lodash";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 
@@ -108,14 +108,13 @@ export default function Main() {
     }
   }, [data]);
 
-  const handleOnChange = useCallback(
-    (input: string, index: number) => {
-      handleInput({ index, input });
-    },
+  const debounceHandleOnChange = useMemo(
+    () =>
+      debounce((input: string, index: number) => {
+        handleInput({ index, input });
+      }, 800),
     [handleInput]
   );
-
-  const debounceHandleOnChange = debounce(handleOnChange, 1000);
 
   return (
     <Container>
