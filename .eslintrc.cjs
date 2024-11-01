@@ -65,5 +65,11 @@ module.exports = {
       "warn",
       { allowSameFolder: false, prefix: "@", rootDir: "src" },
     ],
+    "@typescript-eslint/consistent-type-imports": [
+      "error",
+      {
+        fixStyle: "separate-type-imports",
+      },
+    ],
   },
 };
