@@ -89,7 +89,7 @@ export default function Question({
   question,
   onInputChange,
 }: QuestionProps) {
-  const { mutate: handleStarred } = useNote(index);
+  const { mutate: handleStarred } = useNote(question.id);
 
   const fuzzy = useMemo(() => FuzzySet([question.answer]), [question.answer]);
 

@@ -1,7 +1,7 @@
 import { Backdrop, ToggleButton, ToggleButtonGroup } from "@mui/material";
 import { debounce } from "lodash";
-import { useMemo } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useEffect, useMemo } from "react";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import styled from "styled-components";
 
 import { useLoading } from "@/hooks/useLoading";
@@ -29,8 +29,10 @@ const QuestionsContainer = styled.div`
 export default function Main() {
   const { pathname } = useLocation();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const shuffle = searchParams.get("shuffle");
 
-  const { data, isFetching } = useFetch();
+  const { data, isFetching, refetch } = useFetch();
   const { mutate: handleInput } = useInput();
   const { loading } = useLoading();
 
@@ -41,6 +43,10 @@ export default function Main() {
       }, 800),
     [handleInput]
   );
+
+  useEffect(() => {
+    void refetch();
+  }, [refetch, shuffle]);
 
   return (
     <Container>
@@ -70,7 +76,9 @@ export default function Main() {
               key={index}
               index={index}
               question={question}
-              onInputChange={(value) => debounceHandleOnChange(value, index)}
+              onInputChange={(value) =>
+                debounceHandleOnChange(value, question.id)
+              }
             />
           ))}
           <Backdrop

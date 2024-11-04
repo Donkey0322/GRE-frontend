@@ -11,16 +11,27 @@ import {
   SpeedDialAction,
   SpeedDialIcon,
 } from "@mui/material";
+import _ from "lodash";
 import { useState } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
-import { useClean, useRefetch, useShuffle } from "@/modules/app/services";
+import { useClean, useFetch, useRefetch } from "@/modules/app/services";
 
 export default function Tool() {
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const shuffle = searchParams.get("shuffle");
+
   const [dialOpen, setDialOpen] = useState(false);
 
   const { mutate, isPending } = useRefetch();
   const { mutate: clean, isPending: isCleaning } = useClean();
-  const { mutate: shuffle, isPending: isShuffling } = useShuffle();
+  const { refetch } = useFetch();
+
+  const handleShuffleClick = () => {
+    if (_.isNil(shuffle)) navigate("?shuffle=true");
+    else void refetch();
+  };
 
   return (
     <SpeedDial
@@ -30,7 +41,7 @@ export default function Tool() {
       direction={"down"}
       onOpen={() => setDialOpen(true)}
       onClose={() => setDialOpen(false)}
-      open={isPending || isCleaning || isShuffling || dialOpen}
+      open={isPending || isCleaning || dialOpen}
     >
       <SpeedDialAction
         key={"refresh"}
@@ -58,15 +69,9 @@ export default function Tool() {
       />
       <SpeedDialAction
         key={"shuffle"}
-        icon={
-          isShuffling ? (
-            <CircularProgress color="inherit" size="2em" />
-          ) : (
-            <ShuffleTwoToneIcon />
-          )
-        }
+        icon={<ShuffleTwoToneIcon />}
         tooltipTitle={"Shuffle questions"}
-        onClick={() => shuffle()}
+        onClick={handleShuffleClick}
       />
     </SpeedDial>
   );

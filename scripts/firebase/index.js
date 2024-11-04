@@ -4,8 +4,8 @@ import { hideBin } from "yargs/helpers";
 
 const argv = yargs(hideBin(process.argv)).argv;
 
-if (argv.d || argv.p) {
-  const NODE_ENV = argv.d ? "development" : "production";
+if (argv.d || argv.p || argv.s) {
+  const NODE_ENV = argv.d ? "development" : argv.s ? "staging" : "production";
   exec(`yarn build --mode ${NODE_ENV}`, (error, stdout, stderr) => {
     if (error) console.error(`❌ Error: ${error.message}`);
     if (stderr) console.error("❌", stderr);

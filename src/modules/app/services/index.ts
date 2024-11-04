@@ -1,5 +1,5 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { useLocation } from "react-router-dom";
+import { useLocation, useSearchParams } from "react-router-dom";
 
 import type { QuestionType } from "@/types";
 import type { RefetchOptions, UseMutationOptions } from "@tanstack/react-query";
@@ -10,11 +10,16 @@ import instance from "@/services/axios.config";
 
 export const useFetch = () => {
   const { pathname } = useLocation();
+  const [searchParams] = useSearchParams();
+  const shuffle = searchParams.get("shuffle") === "true";
+
   return useQuery({
     queryKey: ["/", pathname],
     queryFn: () =>
       instance
-        .get<QuestionType[]>("/", { params: { chapter: pathname.slice(1) } })
+        .get<QuestionType[]>("/", {
+          params: { chapter: pathname.slice(1), shuffle },
+        })
         .then((res) => res.data),
   });
 };
@@ -93,27 +98,6 @@ export const useClean = (props?: MutationProps) => {
     mutationFn: () =>
       instance
         .patch<RefetchOptions>("/", { chapter: pathname.slice(1) })
-        .then((res) => res.data),
-    onMutate: () => setLoading(true),
-    onError: () => setLoading(false),
-    async onSuccess(data, variables, context) {
-      props?.onSuccess?.(data, variables, context);
-      await queryClient.invalidateQueries({ queryKey: ["/", pathname] });
-      setLoading(false);
-    },
-  });
-  return mutation;
-};
-
-export const useShuffle = (props?: MutationProps) => {
-  const { setLoading } = useLoading();
-  const { pathname } = useLocation();
-  const mutation = useMutation({
-    ...props,
-    mutationKey: ["shuffle"],
-    mutationFn: () =>
-      instance
-        .put<RefetchOptions>("/shuffle", { chapter: pathname.slice(1) })
         .then((res) => res.data),
     onMutate: () => setLoading(true),
     onError: () => setLoading(false),
