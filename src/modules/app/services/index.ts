@@ -12,32 +12,34 @@ export const useFetch = () => {
   const { pathname } = useLocation();
   const [searchParams] = useSearchParams();
   const shuffle = searchParams.get("shuffle") === "true";
+  const chapter = pathname.slice(1);
 
   return useQuery({
     queryKey: ["/", pathname],
     queryFn: () =>
       instance
-        .get<QuestionType[]>("/", {
-          params: { chapter: pathname.slice(1), shuffle },
+        .get<QuestionType[]>(`/${chapter}`, {
+          params: { shuffle },
         })
         .then((res) => res.data),
   });
 };
 
 export const useInput = (
-  props?: UseMutationOptions<
-    RefetchOptions,
-    Error,
-    { index: number; input: string }
-  >
+  index: number,
+  props?: UseMutationOptions<RefetchOptions, Error, { input: string }>
 ) => {
   const { pathname } = useLocation();
+  const chapter = pathname.slice(1);
+
   return useMutation({
     ...props,
-    mutationKey: ["input"],
-    mutationFn: ({ index, input }: { index: number; input: string }) =>
+    mutationKey: ["input", chapter, index],
+    mutationFn: ({ input }) =>
       instance
-        .put<RefetchOptions>("/", { chapter: pathname.slice(1), index, input })
+        .patch<RefetchOptions>(`/${chapter}/${index}/input`, {
+          input,
+        })
         .then((res) => res.data),
   });
 };
@@ -47,37 +49,28 @@ export const useNote = (
   props?: UseMutationOptions<RefetchOptions, Error>
 ) => {
   const { pathname } = useLocation();
+  const chapter = pathname.slice(1);
+
   return useMutation({
     ...props,
-    mutationKey: ["note"],
+    mutationKey: ["note", chapter, index],
     mutationFn: () =>
       instance
-        .put<RefetchOptions>("/note", { chapter: pathname.slice(1), index })
+        .patch<RefetchOptions>(`/${chapter}/${index}/note`)
         .then((res) => res.data),
-    onSuccess(data, variables, context) {
-      props?.onSuccess?.(data, variables, context);
-    },
   });
 };
 
-interface MutationProps extends UseMutationOptions<RefetchOptions> {
-  invalidateHooks?: {
-    isLoading: boolean;
-    start: () => void;
-    end: () => void;
-  };
-}
-
-export const useRefetch = (props?: MutationProps) => {
+export const useRefetch = (props?: UseMutationOptions<RefetchOptions>) => {
   const { setLoading } = useLoading();
   const { pathname } = useLocation();
-  const mutation = useMutation({
+  const chapter = pathname.slice(1);
+
+  return useMutation({
     ...props,
-    mutationKey: ["refetch"],
+    mutationKey: [chapter],
     mutationFn: () =>
-      instance
-        .post<RefetchOptions>("/", { chapter: pathname.slice(1) })
-        .then((res) => res.data),
+      instance.post<RefetchOptions>(`/${chapter}`).then((res) => res.data),
     onMutate: () => setLoading(true),
     onError: () => setLoading(false),
     async onSuccess(data, variables, context) {
@@ -86,18 +79,23 @@ export const useRefetch = (props?: MutationProps) => {
       setLoading(false);
     },
   });
-  return mutation;
 };
 
-export const useClean = (props?: MutationProps) => {
+export const useClean = (
+  props?: UseMutationOptions<RefetchOptions, Error, { deep: boolean }>
+) => {
   const { setLoading } = useLoading();
   const { pathname } = useLocation();
-  const mutation = useMutation({
+  const chapter = pathname.slice(1);
+
+  return useMutation({
     ...props,
     mutationKey: ["clean"],
-    mutationFn: () =>
+    mutationFn: ({ deep }: { deep: boolean }) =>
       instance
-        .patch<RefetchOptions>("/", { chapter: pathname.slice(1) })
+        .patch<RefetchOptions>(`/${chapter}/clean`, null, {
+          params: { deep },
+        })
         .then((res) => res.data),
     onMutate: () => setLoading(true),
     onError: () => setLoading(false),
@@ -107,5 +105,4 @@ export const useClean = (props?: MutationProps) => {
       setLoading(false);
     },
   });
-  return mutation;
 };

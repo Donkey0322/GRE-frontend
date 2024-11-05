@@ -7,19 +7,18 @@ import TextField from "@mui/material/TextField";
 import Zoom from "@mui/material/Zoom";
 import { motion } from "framer-motion";
 import FuzzySet from "fuzzyset";
-import { isNull, round, toNumber } from "lodash";
+import { debounce, isNull, round, toNumber } from "lodash";
 import { useMemo, useRef, useState } from "react";
 import styled from "styled-components";
 
 import type { QuestionType } from "@/types";
 import type { TooltipProps } from "@mui/material";
 
-import { useNote } from "@/modules/app/services";
+import { useInput, useNote } from "@/modules/app/services";
 
 interface QuestionProps {
   index: number;
   question: QuestionType;
-  onInputChange: (value: string) => void;
 }
 
 const QuestionContainer = styled.div`
@@ -84,12 +83,9 @@ const InputIcon = ({
   );
 };
 
-export default function Question({
-  index,
-  question,
-  onInputChange,
-}: QuestionProps) {
+export default function Question({ index, question }: QuestionProps) {
   const { mutate: handleStarred } = useNote(question.id);
+  const { mutate: handleInput } = useInput(question.id);
 
   const fuzzy = useMemo(() => FuzzySet([question.answer]), [question.answer]);
 
@@ -127,18 +123,26 @@ export default function Question({
     sibling?.focus();
   };
 
+  const debounceHandleInput = useMemo(
+    () =>
+      debounce((input: string) => {
+        handleInput({ input });
+      }, 800),
+    [handleInput]
+  );
+
   const handleInputChange = ({
     target: { value },
   }: React.ChangeEvent<HTMLInputElement>) => {
     setScore(value ? toNumber(fuzzy.get(value, [[0, value]])[0][0]) : null);
-    onInputChange(value);
+    debounceHandleInput(value);
     if (value === question.answer) {
       tabToNextQuestion(index);
     }
   };
 
   const handleRemind = (e: React.KeyboardEvent<HTMLDivElement>) => {
-    if (e.key === "Tab" && e.shiftKey) {
+    if (e.key === " " && e.shiftKey) {
       e.preventDefault();
       setPlaceholderIndex((prev) => prev + 1);
     }
@@ -166,6 +170,10 @@ export default function Question({
         whileHover={{ scale: starred ? 1 : 1.4 }}
         transition={{ type: "spring", stiffness: 400, damping: 13 }}
         onClick={!starred ? handleStarClick : undefined}
+        onKeyUp={(e) => {
+          if (!starred && e.key === "Enter") handleStarClick();
+          else return undefined;
+        }}
       >
         <StarsRoundedIcon
           fontSize="medium"

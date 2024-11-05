@@ -1,13 +1,12 @@
 import { Backdrop, ToggleButton, ToggleButtonGroup } from "@mui/material";
-import { debounce } from "lodash";
-import { useEffect, useMemo } from "react";
+import { useEffect } from "react";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import styled from "styled-components";
 
 import { useLoading } from "@/hooks/useLoading";
 import Question from "@/modules/app/components/Question";
 import Tool from "@/modules/app/components/Tool";
-import { useFetch, useInput } from "@/modules/app/services";
+import { useFetch } from "@/modules/app/services";
 
 const Container = styled.div`
   width: 100vw;
@@ -33,16 +32,7 @@ export default function Main() {
   const shuffle = searchParams.get("shuffle");
 
   const { data, isFetching, refetch } = useFetch();
-  const { mutate: handleInput } = useInput();
   const { loading } = useLoading();
-
-  const debounceHandleOnChange = useMemo(
-    () =>
-      debounce((input: string, index: number) => {
-        handleInput({ index, input });
-      }, 800),
-    [handleInput]
-  );
 
   useEffect(() => {
     void refetch();
@@ -72,14 +62,7 @@ export default function Main() {
       ) : (
         <QuestionsContainer>
           {data?.map((question, index) => (
-            <Question
-              key={index}
-              index={index}
-              question={question}
-              onInputChange={(value) =>
-                debounceHandleOnChange(value, question.id)
-              }
-            />
+            <Question key={index} index={index} question={question} />
           ))}
           <Backdrop
             sx={{
